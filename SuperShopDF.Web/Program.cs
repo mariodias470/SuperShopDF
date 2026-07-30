@@ -22,5 +22,7 @@ namespace SuperShopDF.Web
                 {
                     webBuilder.UseStartup<Startup>();
                 });
-    }
-}
+    
+
+    } // end class Main()
+} // end namespace SuperShopDF.Web

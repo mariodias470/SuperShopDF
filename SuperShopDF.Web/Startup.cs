@@ -1,13 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using SuperShopDF.Web.Data;
 
 namespace SuperShopDF.Web
 {
@@ -18,13 +15,28 @@ namespace SuperShopDF.Web
             Configuration = configuration;
         }
 
+        
         public IConfiguration Configuration { get; }
+
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddDbContext<DataContext>(cfg =>
+            {
+                // 1h 13m do vídeo (leitura deste excerto de código)
+                // 2026_m07_JUL_d21_3F_[ASP.NET_MVC_04]_.mp4
+                // Atenção à ressalva do professor à 1h 1m do vídeo.
+                cfg.UseSqlServer(this.Configuration.GetConnectionString("DefaultConnection"));
+            });
+
             services.AddControllersWithViews();
-        }
+        
+        } // end ConfigureServices(()
+
+
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -52,6 +64,8 @@ namespace SuperShopDF.Web
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
-        }
-    }
-}
+        } // end Configure()
+
+
+    } // end class public class Startup
+} // end namespace SuperShopDF.Web
