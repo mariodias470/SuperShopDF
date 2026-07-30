@@ -31,6 +31,11 @@ namespace SuperShopDF.Web
                 cfg.UseSqlServer(this.Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            services.AddTransient<SeedDb>();
+
+            // services.AddSingleton
+            // services.AddScoped();
+
             services.AddControllersWithViews();
         
         } // end ConfigureServices(()
