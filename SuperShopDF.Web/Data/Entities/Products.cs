@@ -53,7 +53,7 @@ Fiz cd D:\CppCet105\RS2026\Projs\SuperShopDF\SuperShopDF.Web
 porque ele queixava-se de que não encontrava o project file.
        
 para gerar o scaffolding:
-D:\CppCet105\RS2026\Projs\SuperShopDF\SuperShopDF.Web>dotnet aspnet-codegenerator controller -name ProductsController -m Product -dc DataContext --relativeFolderPath Controllers --useDefaultLayout --referenceScriptLib
+D:\CppCet105\RS2026\Projs\SuperShopDF\SuperShopDF.Web>dotnet aspnet-codegenerator controller -name ProductsController -m Product -dc DataContext --relativeFolderPath Controllers --useDefaultLayout --referenceScriptLibraries
 
 O mesmo código em várias linhas:
 
@@ -64,7 +64,7 @@ D:\CppCet105\RS2026\Projs\SuperShopDF\SuperShopDF.Web>
 							   -dc DataContext 
 							   --relativeFolderPath Controllers 
 							   --useDefaultLayout 
-							   --referenceScriptLib
+							   --referenceScriptLibraries
 
 resultado:
 
