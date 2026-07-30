@@ -1,12 +1,11 @@
-@model SuperShopDF.Web.Data.Entities.Product
-
+@model SuperShopDF.Web.Data.Entities.Product 
+@* vídeo 5 - 10.53 -> O @model SuperShopDF.Web.Data.Entities.Product só está aqui para tipificar a view *@
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create ne product";
 }
 
-<h1>Create</h1>
+<h1>New Product</h1>
 
-<h4>Product</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -49,15 +48,15 @@
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-success">Back to List</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
+
+@* Tudo o que seja javascript tem de estar dentro desta secção: *@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
