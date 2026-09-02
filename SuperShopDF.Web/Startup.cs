@@ -10,10 +10,7 @@ namespace SuperShopDF.Web
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        public Startup(IConfiguration configuration) { Configuration = configuration; }
 
         
         public IConfiguration Configuration { get; }
@@ -31,7 +28,16 @@ namespace SuperShopDF.Web
                 cfg.UseSqlServer(this.Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            services.AddTransient<SeedDb>(); // O seed é criado e desaparece 31.30 do vídeo ASP.NET_MVC_07.
+
+            // 14.00 do vídeo ASP.NET_MVC_07: Como a classe dos produtos é feita por mim vou ter de pôr isto na injecção das dependências.
+
             services.AddTransient<SeedDb>();
+            services.AddScoped<IRepository, Repository>(); // 30.46 do vídeo ASP.NET_MVC_07: injecção de dependências para a classe Repository.
+
+            // MOCK REPOSITORY:
+            // services.AddScoped<IRepository, MockRepository>(); // 72.49 do vídeo ASP.NET_MVC_07: utilização do MockRepository.
+            // services.AddSingleton<>
 
             // services.AddSingleton
             // services.AddScoped();
@@ -71,6 +77,7 @@ namespace SuperShopDF.Web
             });
         } // end Configure()
 
+        // 33.06 --> ASP.NET_MVC_07 acedêmos através do repositório e não acedo directamente ao contexto (i.e., aos dados).
 
     } // end class public class Startup
 } // end namespace SuperShopDF.Web

@@ -55,9 +55,16 @@
         </dd>
     </dl>
     
-    <form asp-action="Delete">
+@*     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>
-</div>
+ *@</div>
+
+     @* Alterações efectuadas aos 37.20 do vídeo ASP.NET_MVC_07.mp4: *@
+     <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-success">Back to List</a>
+    </form>
