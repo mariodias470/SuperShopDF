@@ -10,9 +10,9 @@ using System.ComponentModel.DataAnnotations;
  | o fim deste ficheiro!...
  +-------------------------------------------------------------*/
 
-namespace SuperShopDF.Web.Data.Entities
+namespace SuperShopDF.Web.Data.Entities 
 {
-    public class Product
+    public class Product : IEntity
     {
         [Key]
         public int Id { get; set; }

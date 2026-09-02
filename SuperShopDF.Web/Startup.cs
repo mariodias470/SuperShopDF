@@ -5,6 +5,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SuperShopDF.Web.Data;
+using SuperShopDF.Web.Data.Entities;
+
+// Aos 30.40 do vídeo ASP.NET_MVC_08, o professor apaga a interface IRepository e a classe Repository, porque vamos usar a GenericRepository.
+// Passamos a usar apenas o genérico.
+
 
 namespace SuperShopDF.Web
 {
@@ -32,8 +37,14 @@ namespace SuperShopDF.Web
 
             // 14.00 do vídeo ASP.NET_MVC_07: Como a classe dos produtos é feita por mim vou ter de pôr isto na injecção das dependências.
 
+
+            // 30.46 do vídeo ASP.NET_MVC_07: injecção de dependências para a classe Repository:
             services.AddTransient<SeedDb>();
-            services.AddScoped<IRepository, Repository>(); // 30.46 do vídeo ASP.NET_MVC_07: injecção de dependências para a classe Repository.
+            // services.AddScoped<IRepository, Repository>(); 
+
+
+            // 31.17 do vídeo ASP.NET_MVC_08:
+            services.AddScoped<IProductRepository, ProductRepository>(); 
 
             // MOCK REPOSITORY:
             // services.AddScoped<IRepository, MockRepository>(); // 72.49 do vídeo ASP.NET_MVC_07: utilização do MockRepository.
