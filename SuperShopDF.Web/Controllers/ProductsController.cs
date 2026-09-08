@@ -1,8 +1,10 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SuperShopDF.Web.Data;
 using SuperShopDF.Web.Data.Entities;
+using SuperShopDF.Web.Helpers;
 
 namespace SuperShopDF.Web.Controllers
 {
@@ -41,6 +43,7 @@ namespace SuperShopDF.Web.Controllers
     {
         // -- private readonly IRepository _repository;
         private readonly IProductRepository _productRepository;
+        private readonly IUserHelper _userHelper;
 
         // FORA:
         // private readonly DataContext _context;
@@ -61,10 +64,20 @@ namespace SuperShopDF.Web.Controllers
         // --     _repository = repository;
         // -- }
 
-        public ProductsController(IProductRepository productRepository)
+
+        // Aos 52.26 do vídeo ASP.NET_MVC_10.mp4:
+        // Primeiro, é sempre o mesmo procedimento, Injectar o nosso UserHelper, para depois podermos utilizá-lo.
+        public ProductsController
+            (
+                IProductRepository productRepository, 
+                IUserHelper userHelper
+            )
+
+        // public ProductsController(IProductRepository productRepository)
         {
             // _repository = repository;
             _productRepository = productRepository;
+            _userHelper = userHelper;
         }
 
 
@@ -77,7 +90,7 @@ namespace SuperShopDF.Web.Controllers
         public IActionResult Index()
         {
             // -- return View(_repository.GetProducts());
-            return View(_productRepository.GetAll());
+            return View(_productRepository.GetAll().OrderBy(p => p.Name));
         } // end Index() [1]
 
 
@@ -131,6 +144,12 @@ namespace SuperShopDF.Web.Controllers
         {
             if (ModelState.IsValid)
             {
+                // TODO: modificar para o user que estiver logado (é o user indentity.Name) [Vide janela "Task List"].
+                // Aos 53.26 do vídeo ASP.NET_MVC_10.mp4: Antes de gravar o produto na base de dados, temos
+                // de associar o produto ao utilizador que está a criar o produto.
+                product.User = await _userHelper.GetUserByEmailAsync("rafaaaa@gmail.com");
+
+
                 // _context.Add(product); // muito importante: RS at vídeo ASP.NET_MVC_07, 8m 8s.
                 // não temos associação directa à base de dados.
                 // -- _repository.AddProduct(product);
@@ -196,6 +215,11 @@ namespace SuperShopDF.Web.Controllers
                 {
                     // _context.Update(product);
                     // -- _repository.UpadateProduct(product); 
+
+                    // 1.02.10 do vídeo ASP.NET_MVC_10:
+                    // TODO: modificar para o user que estiver logado (é o user indentity.Name) [Vide janela "Task List"]
+                    product.User = await _userHelper.GetUserByEmailAsync("rafaaaa@gmail.com");
+
                     await _productRepository.UpdateAsync(product); // 39.02 do vídeo ASP.NET_MVC_08.mp3
 
 

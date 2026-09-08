@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore; // <-- acrescentei à mão
+using Microsoft.EntityFrameworkCore;
 using SuperShopDF.Web.Data.Entities;
 
 namespace SuperShopDF.Web.Data
 {
-    public class DataContext : DbContext
+    // public class DataContext : DbContext
+    public class DataContext: IdentityDbContext<User>
     {
         // public DbSet<SuperShop105.Data.Entities.Product> Products { get; set; }
         public DbSet<Product> Products { get; set; }

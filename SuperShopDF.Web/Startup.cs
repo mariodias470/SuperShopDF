@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SuperShopDF.Web.Data;
 using SuperShopDF.Web.Data.Entities;
+using SuperShopDF.Web.Helpers;
 
 // Aos 30.40 do vídeo ASP.NET_MVC_08, o professor apaga a interface IRepository e a classe Repository, porque vamos usar a GenericRepository.
 // Passamos a usar apenas o genérico.
@@ -17,13 +19,24 @@ namespace SuperShopDF.Web
     {
         public Startup(IConfiguration configuration) { Configuration = configuration; }
 
-        
         public IConfiguration Configuration { get; }
 
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // 30.05 --> 3º passo: configuração do serviço de autentivação (ASP.NET_MVC_10)
+            services.AddIdentity<User, IdentityRole>(cfg =>
+            {
+                cfg.User.RequireUniqueEmail = true;
+                cfg.Password.RequireDigit = false;
+                cfg.Password.RequiredUniqueChars = 0;
+                cfg.Password.RequireLowercase = false;
+                cfg.Password.RequireNonAlphanumeric = false;
+                cfg.Password.RequireUppercase = false;
+                cfg.Password.RequiredLength = 6;
+            }).AddEntityFrameworkStores<DataContext>();
+
 
             services.AddDbContext<DataContext>(cfg =>
             {
@@ -39,8 +52,11 @@ namespace SuperShopDF.Web
 
 
             // 30.46 do vídeo ASP.NET_MVC_07: injecção de dependências para a classe Repository:
-            services.AddTransient<SeedDb>();
+            // services.AddTransient<SeedDb>();
             // services.AddScoped<IRepository, Repository>(); 
+
+            // 48.56 do vídeo ASP.NET_MVC_10:
+            services.AddScoped<IUserHelper, UserHelper>();
 
 
             // 31.17 do vídeo ASP.NET_MVC_08:
@@ -78,7 +94,8 @@ namespace SuperShopDF.Web
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            app.UseAuthentication(); // 57.10 ASP.NET_MVC_10. Middleware de autenticação, adicionado por mim no dia 5
+            app.UseAuthorization(); // adicionado por mim no dia 5
 
             app.UseEndpoints(endpoints =>
             {
