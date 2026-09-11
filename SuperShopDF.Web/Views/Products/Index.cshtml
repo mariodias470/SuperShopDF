@@ -18,9 +18,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Price)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageUrl)
-            </th>
+
             <th>
                 @Html.DisplayNameFor(model => model.LastPurchase)
             </th>
@@ -36,6 +34,7 @@
             <th></th>
         </tr>
     </thead>
+
     <tbody>
 @foreach (var item in Model) {
         <tr>
@@ -46,7 +45,11 @@
                 @Html.DisplayFor(modelItem => item.Price)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ImageUrl)
+                @* @Html.DisplayFor(modelItem => item.ImageUrl) *@
+                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                {
+                    <img src="@Url.Content(item.ImageUrl)" alt="Image" style="width:100px;height:150px;max-width:100%;" />
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.LastPurchase)

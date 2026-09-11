@@ -15,4 +15,8 @@
       <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\images\products\" />
+    </ItemGroup>
+
   </Project>

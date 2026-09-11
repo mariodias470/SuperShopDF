@@ -42,6 +42,22 @@ namespace SuperShopDF.Web.Data.Entities
 
         public User User { get; set; }
 
+
+        // 1.04.17 vídeo ASP.NET_MVC_11 - Criação de uma propriedade só de leitura, e esta propriedade fornece-nos o caminho
+        //                                para aqueles que não acedam à base de dados:
+        public string ImageFullPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(ImageUrl))
+                {
+                    return null; // 1.08.32 vídeo ASP.NET_MVC_11 o que se pretende é pôr aqui o codigo que vá buscar uma imagem que diga "image not found!"
+                }
+                return $"https://localhost:44334{ImageUrl.Substring(1)}";
+            }
+        }
+
+
     } // end class Product
 } // end namespace SuperShopDF.Web.Data.Entities
 

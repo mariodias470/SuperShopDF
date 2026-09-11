@@ -1,10 +1,14 @@
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using SuperShopDF.Web.Data;
 using SuperShopDF.Web.Data.Entities;
 using SuperShopDF.Web.Helpers;
+using SuperShopDF.Web.Models;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SuperShopDF.Web.Controllers
 {
@@ -29,13 +33,19 @@ namespace SuperShopDF.Web.Controllers
             public IActionResult                3) Create()                        GET
             public async Task<IActionResult>    4) Create(Product product)         POST
 
+            Product                                ToProduct(ProductViewModel model, string path)
+
             public async Task<IActionResult>    5) Edit(int? id)                   GET
+
+            private ProductViewModel               ToProductViewModel(Product product)
+                    
             public async Task<IActionResult>    6) Edit(int id, Product product)   POST
 
             public async Task<IActionResult>    7) Delete(int? id)                 GET
             public async Task<IActionResult>    8) DeleteConfirmed(int id)         POST
 
             private bool                        9) ProductExists(int id)           
+
     */
 
 
@@ -83,7 +93,7 @@ namespace SuperShopDF.Web.Controllers
 
 
         //----------------------------------------------
-        // 1)
+        // 1) Index()
         //----------------------------------------------
         // GET: Products
         // public async Task<IActionResult> Index()  // go to View --> ^MG
@@ -95,7 +105,7 @@ namespace SuperShopDF.Web.Controllers
 
 
         //----------------------------------------------
-        // 2)
+        // 2) Details(int? id)
         //----------------------------------------------
         // GET: Products/Details/5
         // public async Task<IActionResult> Details(int? id)
@@ -122,7 +132,7 @@ namespace SuperShopDF.Web.Controllers
 
 
         //----------------------------------------------
-        // 3)
+        // 3) Create()
         //----------------------------------------------
         // GET: Products/Create
         public IActionResult Create()
@@ -132,7 +142,7 @@ namespace SuperShopDF.Web.Controllers
 
 
         //----------------------------------------------
-        // 4)
+        // 4) Create(Product product)
         //----------------------------------------------
         // POST: Products/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -140,10 +150,37 @@ namespace SuperShopDF.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         // public async Task<IActionResult> Create([Bind("Id,Name,Price,ImageUrl,LastPurchase,LastSale,IsAvailable,Stock")] Product product)
-        public async Task<IActionResult> Create(Product product)
+        // public async Task<IActionResult> Create(Product product)
+        public async Task<IActionResult> Create(ProductViewModel model) // 11.10 vídeo ASP.NET_MVC_11.mp4.
         {
             if (ModelState.IsValid)
             {
+                // carregar as imagens aqui, 11.33 vídeo ASP.NET_MVC_11.mp4.
+                var path = string.Empty;
+
+                if (model.ImageFile != null && model.ImageFile.Length > 0)
+                {
+                    // 1.19.46 vídeo ASP.NET_MVC_11.mp4:
+                    var guid = Guid.NewGuid().ToString();
+                    var file = $"{guid}.jpg";
+                    // 1.19.46 vídeo ASP.NET_MVC_11.mp4.
+                    
+                    path = Path.Combine
+                        (
+                            Directory.GetCurrentDirectory(), 
+                            "wwwroot\\images\\products",
+                            // model.ImageFile.FileName - vai FORA aos 1.21.13 vídeo ASP.NET_MVC_11 e é substituido por 'file'
+                            file
+                        );
+
+                    using (var stream = new FileStream(path, FileMode.Create))
+                    { await model.ImageFile.CopyToAsync(stream); } // 15.01 --> guarda a imagem no disco. 
+
+                    // path = $"~/images/products/{model.ImageFile.FileName}"; - vai FORA aos 1.21.28 vídeo ASP.NET_MVC_11 e é substituido por 'file'
+                    path = $"~/images/products/{file}";
+                }
+
+                var product = ToProduct(model, path);
                 // TODO: modificar para o user que estiver logado (é o user indentity.Name) [Vide janela "Task List"].
                 // Aos 53.26 do vídeo ASP.NET_MVC_10.mp4: Antes de gravar o produto na base de dados, temos
                 // de associar o produto ao utilizador que está a criar o produto.
@@ -163,12 +200,34 @@ namespace SuperShopDF.Web.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            return View(product);
+            // return View(product);
+            return View(model); // 18.21 vídeo ASP.NET_MVC_11.mp4.
         } // ends Create(Product product) [4]
 
 
+
         //----------------------------------------------
-        // 5)
+        // ToProduct()
+        //----------------------------------------------
+        private Product ToProduct(ProductViewModel model, string path)
+        {
+            return new Product
+            {
+                Id = model.Id,
+                ImageUrl = path,
+                IsAvailable = model.IsAvailable,
+                LastPurchase = model.LastPurchase,
+                LastSale = model.LastSale,
+                Name = model.Name,
+                Price = model.Price,
+                Stock = model.Stock,
+                User = model.User
+            };
+        } // end ToProduct()
+
+
+        //----------------------------------------------
+        // 5) Edit(int? id)
         //----------------------------------------------
         // GET: Products/Edit/5
         // public async Task<IActionResult> Edit(int? id)
@@ -184,16 +243,44 @@ namespace SuperShopDF.Web.Controllers
             // -- var product = _repository.GetProduct(id.Value);
             var product = await _productRepository.GetByIdAsync(id.Value);
 
-            if (product == null)
-            {
-                return NotFound();
-            }
-            return View(product);
+            if (product == null) { return NotFound(); }
+
+
+            // Temos de enviar um ProductViewModel para a view Edit.cshtml.
+            // A partir da BD recebemos um 'Product' que terá de ser convertido para
+            // um 'ProductViewModel' (30.25 vídeo ASP.NET_MVC_11.mp4).
+            // Deste modo, a view Edit.cshtml.
+            // Neste caso faremos o inverso do que fizémos há bocado.
+
+            var model = this.ToProductViewModel(product);
+
+            // return View(product);
+            return View(model);
         } // end Edit(int? id) [5]
 
 
         //----------------------------------------------
-        // 6)
+        // ToProductViewModel()
+        //----------------------------------------------
+        private ProductViewModel ToProductViewModel(Product product)
+        {
+            return new ProductViewModel
+            {
+                Id = product.Id,
+                IsAvailable = product.IsAvailable,
+                LastPurchase = product.LastPurchase,
+                LastSale = product.LastSale,
+                ImageUrl = product.ImageUrl,
+                Name = product.Name,
+                Price = product.Price,
+                Stock = product.Stock,
+                User = product.User
+            };
+        } // end ToProductViewModel()
+
+
+        //----------------------------------------------
+        // 6) Edit(int id, Product product)
         //----------------------------------------------
         // POST: Products/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -202,17 +289,43 @@ namespace SuperShopDF.Web.Controllers
         [ValidateAntiForgeryToken]
         // public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price,ImageUrl,LastPurchase,LastSale,IsAvailable,Stock")] Product product)
         // public async Task<IActionResult> Edit(int id, Product product)
-        public async Task<IActionResult> Edit(int id, Product product)
+        // public async Task<IActionResult> Edit(int id, Product product)
+        public async Task<IActionResult> Edit(ProductViewModel model) // 37.10 do vídeo ASP.NET_MVC_11.mp4, o Id não é necessário.
         {
-            if (id != product.Id)
-            {
-                return NotFound();
-            }
+            // 37.10 do vídeo ASP.NET_MVC_11.mp4, o Id não é necessário:
+            // FORA - if (id != product.Id) { return NotFound(); }
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // 37.26 ASP.NET_MVC_11.mp4. É preciso fazer aqui aquilo que fizémos há bocado para a imagem.
+                    var path = model.ImageUrl;
+                    if (model.ImageFile != null && model.ImageFile.Length > 0)
+                    {
+                        // 1.22.30 vídeo ASP.NET_MVC_11.mp4:
+                        var guid = Guid.NewGuid().ToString();
+                        var file = $"{guid}.jpg";
+                        // 1.22.30 vídeo ASP.NET_MVC_11.mp4.
+
+                        // Process the uploaded image file
+                        path = Path.Combine
+                            (
+                                Directory.GetCurrentDirectory(), 
+                                "wwwroot\\images\\products", 
+                                // FORA model.ImageFile.FileName
+                                file
+                            );
+                        
+                        using (var stream = new FileStream(path, FileMode.Create))
+                        {
+                            await model.ImageFile.CopyToAsync(stream);
+                        }
+
+                        path = $"~/images/products/{/*model.ImageFile.FileName*/ file }";
+                    }
+
+                    var product = ToProduct(model, path);
                     // _context.Update(product);
                     // -- _repository.UpadateProduct(product); 
 
@@ -231,7 +344,7 @@ namespace SuperShopDF.Web.Controllers
                 {
                     // if (!ProductExists(product.Id)) { return NotFound(); }
                     // -- if (!_repository.ProductExists(product.Id))
-                    if (!await _productRepository.ExistAsync(product.Id))   // 39.42 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4
+                    if (!await _productRepository.ExistAsync(model.Id))   // 39.42 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4
                     {
                         return NotFound();
                     }
@@ -242,12 +355,12 @@ namespace SuperShopDF.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(product);
+            return View(model);
         } // end Edit(int id, Product product) [6]
 
 
         //----------------------------------------------
-        // 7)
+        // 7) Delete(int? id)
         //----------------------------------------------
         // GET: Products/Delete/5
         // public async Task<IActionResult> Delete(int? id) // 26.00 do vídeo ASP.NET_MVC_07.mp3
@@ -272,7 +385,7 @@ namespace SuperShopDF.Web.Controllers
 
 
         //----------------------------------------------
-        // 8)
+        // 8) DeleteConfirmed(int id)
         //----------------------------------------------
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]

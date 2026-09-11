@@ -13,6 +13,18 @@ using SuperShopDF.Web.Helpers;
 // Passamos a usar apenas o genérico.
 
 
+
+
+// Dependency Injection in .NET Step by Step Tutorial
+// https://www.youtube.com/watch?v=VXb3dirvL3I
+// Lifecycles: transient, scoped, singleton.
+// 19.30:
+// --> No data shared across requests --> Transient 
+// --> Data shared within the same request but not across requests --> Scoped 
+// --> Data shared across requests --> singleton
+
+
+
 namespace SuperShopDF.Web
 {
     public class Startup
@@ -94,7 +106,12 @@ namespace SuperShopDF.Web
 
             app.UseRouting();
 
+
+            // app.UseAuthentication(); só preciso disto para o login, logout e register.
+            // Não preciso disto para o CRUD dos produtos. 57.10 ASP.NET_MVC_10. Middleware de autenticação, adicionado por mim no dia 5
             app.UseAuthentication(); // 57.10 ASP.NET_MVC_10. Middleware de autenticação, adicionado por mim no dia 5
+
+
             app.UseAuthorization(); // adicionado por mim no dia 5
 
             app.UseEndpoints(endpoints =>
