@@ -54,6 +54,8 @@ namespace SuperShopDF.Web.Controllers
         // -- private readonly IRepository _repository;
         private readonly IProductRepository _productRepository;
         private readonly IUserHelper _userHelper;
+        private readonly IImageHelper _imageHelper;
+        private readonly IConverterHelper _converterHelper;
 
         // FORA:
         // private readonly DataContext _context;
@@ -80,7 +82,10 @@ namespace SuperShopDF.Web.Controllers
         public ProductsController
             (
                 IProductRepository productRepository, 
-                IUserHelper userHelper
+                IUserHelper userHelper,
+                // 10.18 do vídeo ASP.NET_MVC_12 - Injectar a imagem:
+                IImageHelper imageHelper,
+                IConverterHelper converterHelper
             )
 
         // public ProductsController(IProductRepository productRepository)
@@ -88,6 +93,8 @@ namespace SuperShopDF.Web.Controllers
             // _repository = repository;
             _productRepository = productRepository;
             _userHelper = userHelper;
+            _imageHelper = imageHelper;
+            _converterHelper = converterHelper;
         }
 
 
@@ -160,27 +167,35 @@ namespace SuperShopDF.Web.Controllers
 
                 if (model.ImageFile != null && model.ImageFile.Length > 0)
                 {
-                    // 1.19.46 vídeo ASP.NET_MVC_11.mp4:
-                    var guid = Guid.NewGuid().ToString();
-                    var file = $"{guid}.jpg";
-                    // 1.19.46 vídeo ASP.NET_MVC_11.mp4.
-                    
-                    path = Path.Combine
-                        (
-                            Directory.GetCurrentDirectory(), 
-                            "wwwroot\\images\\products",
-                            // model.ImageFile.FileName - vai FORA aos 1.21.13 vídeo ASP.NET_MVC_11 e é substituido por 'file'
-                            file
-                        );
+                    /*--------------------------------------------
+                     | BEGIN FORA - 11.38 do vídeo ASP.NET_MVC_12
+                     +--------------------------------------------
+                        // 1.19.46 vídeo ASP.NET_MVC_11.mp4:
+                        var guid = Guid.NewGuid().ToString();
+                        var file = $"{guid}.jpg";
+                        // 1.19.46 vídeo ASP.NET_MVC_11.mp4.
+                        
+                        path = Path.Combine
+                            (
+                                Directory.GetCurrentDirectory(), 
+                                "wwwroot\\images\\products",
+                                // model.ImageFile.FileName - vai FORA aos 1.21.13 vídeo ASP.NET_MVC_11 e é substituido por 'file'
+                                file
+                            );
 
-                    using (var stream = new FileStream(path, FileMode.Create))
-                    { await model.ImageFile.CopyToAsync(stream); } // 15.01 --> guarda a imagem no disco. 
+                        using (var stream = new FileStream(path, FileMode.Create))
+                        { await model.ImageFile.CopyToAsync(stream); } // 15.01 --> guarda a imagem no disco. 
 
-                    // path = $"~/images/products/{model.ImageFile.FileName}"; - vai FORA aos 1.21.28 vídeo ASP.NET_MVC_11 e é substituido por 'file'
-                    path = $"~/images/products/{file}";
+                        // path = $"~/images/products/{model.ImageFile.FileName}"; - vai FORA aos 1.21.28 vídeo ASP.NET_MVC_11 e é substituido por 'file'
+                        path = $"~/images/products/{file}";
+                     +------------------------------------------
+                     | END FORA - 11.38 do vídeo ASP.NET_MVC_12.
+                     +------------------------------------------*/
+                    path = await _imageHelper.UploadImageAsync(model.ImageFile, "products");
                 }
 
-                var product = ToProduct(model, path);
+                // var product = ToProduct(model, path);  FORA aos 25.48 do vídeo ASP.NET_MVC_12.
+                var product = _converterHelper.ToProduct(model, path, true);
                 // TODO: modificar para o user que estiver logado (é o user indentity.Name) [Vide janela "Task List"].
                 // Aos 53.26 do vídeo ASP.NET_MVC_10.mp4: Antes de gravar o produto na base de dados, temos
                 // de associar o produto ao utilizador que está a criar o produto.
@@ -206,24 +221,24 @@ namespace SuperShopDF.Web.Controllers
 
 
 
-        //----------------------------------------------
-        // ToProduct()
-        //----------------------------------------------
-        private Product ToProduct(ProductViewModel model, string path)
-        {
-            return new Product
-            {
-                Id = model.Id,
-                ImageUrl = path,
-                IsAvailable = model.IsAvailable,
-                LastPurchase = model.LastPurchase,
-                LastSale = model.LastSale,
-                Name = model.Name,
-                Price = model.Price,
-                Stock = model.Stock,
-                User = model.User
-            };
-        } // end ToProduct()
+        ////----------------------------------------------
+        //// ToProduct()
+        ////----------------------------------------------
+        //private Product ToProduct(ProductViewModel model, string path)
+        //{
+        //    return new Product
+        //    {
+        //        Id = model.Id,
+        //        ImageUrl = path,
+        //        IsAvailable = model.IsAvailable,
+        //        LastPurchase = model.LastPurchase,
+        //        LastSale = model.LastSale,
+        //        Name = model.Name,
+        //        Price = model.Price,
+        //        Stock = model.Stock,
+        //        User = model.User
+        //    };
+        //} // end ToProduct()
 
 
         //----------------------------------------------
@@ -252,31 +267,32 @@ namespace SuperShopDF.Web.Controllers
             // Deste modo, a view Edit.cshtml.
             // Neste caso faremos o inverso do que fizémos há bocado.
 
-            var model = this.ToProductViewModel(product);
+            // var model = this.ToProductViewModel(product); - FORA aos 26.43 do vídeo 12:
+            var model = _converterHelper.ToProductViewModel(product);
 
             // return View(product);
             return View(model);
         } // end Edit(int? id) [5]
 
 
-        //----------------------------------------------
-        // ToProductViewModel()
-        //----------------------------------------------
-        private ProductViewModel ToProductViewModel(Product product)
-        {
-            return new ProductViewModel
-            {
-                Id = product.Id,
-                IsAvailable = product.IsAvailable,
-                LastPurchase = product.LastPurchase,
-                LastSale = product.LastSale,
-                ImageUrl = product.ImageUrl,
-                Name = product.Name,
-                Price = product.Price,
-                Stock = product.Stock,
-                User = product.User
-            };
-        } // end ToProductViewModel()
+        ////----------------------------------------------
+        //// ToProductViewModel()
+        ////----------------------------------------------
+        //private ProductViewModel ToProductViewModel(Product product)
+        //{
+        //    return new ProductViewModel
+        //    {
+        //        Id = product.Id,
+        //        IsAvailable = product.IsAvailable,
+        //        LastPurchase = product.LastPurchase,
+        //        LastSale = product.LastSale,
+        //        ImageUrl = product.ImageUrl,
+        //        Name = product.Name,
+        //        Price = product.Price,
+        //        Stock = product.Stock,
+        //        User = product.User
+        //    };
+        //} // end ToProductViewModel()
 
 
         //----------------------------------------------
@@ -303,29 +319,43 @@ namespace SuperShopDF.Web.Controllers
                     var path = model.ImageUrl;
                     if (model.ImageFile != null && model.ImageFile.Length > 0)
                     {
-                        // 1.22.30 vídeo ASP.NET_MVC_11.mp4:
-                        var guid = Guid.NewGuid().ToString();
-                        var file = $"{guid}.jpg";
-                        // 1.22.30 vídeo ASP.NET_MVC_11.mp4.
+                        /*--------------------------------------------
+                         | BEGIN FORA - 13.19 do vídeo ASP.NET_MVC_12
+                         +--------------------------------------------
+                            // 1.22.30 vídeo ASP.NET_MVC_11.mp4:
+                            var guid = Guid.NewGuid().ToString();
+                            var file = $"{guid}.jpg";
+                            // 1.22.30 vídeo ASP.NET_MVC_11.mp4.
 
-                        // Process the uploaded image file
-                        path = Path.Combine
-                            (
-                                Directory.GetCurrentDirectory(), 
-                                "wwwroot\\images\\products", 
-                                // FORA model.ImageFile.FileName
-                                file
-                            );
-                        
-                        using (var stream = new FileStream(path, FileMode.Create))
-                        {
-                            await model.ImageFile.CopyToAsync(stream);
+                            // Process the uploaded image file
+                            path = Path.Combine
+                                (
+                                    Directory.GetCurrentDirectory(), 
+                                    "wwwroot\\images\\products", 
+                                    // FORA model.ImageFile.FileName
+                                    file
+                                );  
+
+                            using (var stream = new FileStream(path, FileMode.Create))
+                            {
+                                await model.ImageFile.CopyToAsync(stream);
+                            }
+
+                            path = $"~/images/products/{model.ImageFile.FileName}";
+                     +------------------------------------------
+                     | END FORA - 13.19 do vídeo ASP.NET_MVC_12.
+                     +------------------------------------------*/
+                        // path = $"~/images/products/{file}";
+                        path = await _imageHelper.UploadImageAsync(model.ImageFile, "products");
+
                         }
 
-                        path = $"~/images/products/{/*model.ImageFile.FileName*/ file }";
-                    }
+                    // var product = ToProduct(model, path);  - FORA aos 27.37 do vídeo 12:
 
-                    var product = ToProduct(model, path);
+                    // var model = this.ToProductViewModel(product); - FORA aos 26.43 do vídeo 12:
+                    var product = _converterHelper.ToProduct(model, path, false);
+
+
                     // _context.Update(product);
                     // -- _repository.UpadateProduct(product); 
 
@@ -333,96 +363,96 @@ namespace SuperShopDF.Web.Controllers
                     // TODO: modificar para o user que estiver logado (é o user indentity.Name) [Vide janela "Task List"]
                     product.User = await _userHelper.GetUserByEmailAsync("rafaaaa@gmail.com");
 
-                    await _productRepository.UpdateAsync(product); // 39.02 do vídeo ASP.NET_MVC_08.mp3
+                        await _productRepository.UpdateAsync(product); // 39.02 do vídeo ASP.NET_MVC_08.mp3
 
 
-                    // await _context.SaveChangesAsync();
-                    // -- await _repository.SaveAllAsync(); 39.12 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4: Também
-                    // não precisamos de gravar aqui nada.
+                        // await _context.SaveChangesAsync();
+                        // -- await _repository.SaveAllAsync(); 39.12 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4: Também
+                        // não precisamos de gravar aqui nada.
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        // if (!ProductExists(product.Id)) { return NotFound(); }
+                        // -- if (!_repository.ProductExists(product.Id))
+                        if (!await _productRepository.ExistAsync(model.Id))   // 39.42 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                return View(model);
+            } // end Edit(int id, Product product) [6]
+
+
+            //----------------------------------------------
+            // 7) Delete(int? id)
+            //----------------------------------------------
+            // GET: Products/Delete/5
+            // public async Task<IActionResult> Delete(int? id) // 26.00 do vídeo ASP.NET_MVC_07.mp3
+            // -- public IActionResult Delete(int? id) // 26.00 do vídeo ASP.NET_MVC_07.mp3
+            public async Task<IActionResult> Delete(int? id)
+            {
+                if (id == null)
                 {
-                    // if (!ProductExists(product.Id)) { return NotFound(); }
-                    // -- if (!_repository.ProductExists(product.Id))
-                    if (!await _productRepository.ExistAsync(model.Id))   // 39.42 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return NotFound();
                 }
+
+                // var product = await _context.Products.FirstOrDefaultAsync(m => m.Id == id);
+                // -- var product = _repository.GetProduct(id.Value);
+                var product = await _productRepository.GetByIdAsync(id.Value);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+
+                return View(product);
+            } // end Delete(int? id) [7]
+
+
+            //----------------------------------------------
+            // 8) DeleteConfirmed(int id)
+            //----------------------------------------------
+            // POST: Products/Delete/5
+            [HttpPost, ActionName("Delete")]
+            [ValidateAntiForgeryToken]
+            // public async Task<IActionResult> DeleteConfirmed(int id)
+            public async Task<IActionResult> DeleteConfirmed(int id)
+            {
+                // var product = await _context.Products.FindAsync(id);
+                // -- var product = _repository.GetProduct(id);
+                var product = await _productRepository.GetByIdAsync(id);
+
+                // _context.Products.Remove(product);   // 1.31.40 --> Remove da memória!...
+                // -- _repository.RemoveProduct(product);
+                await _productRepository.DeleteAsync(product);
+
+                // await _context.SaveChangesAsync();
+                // -- await _repository.SaveAllAsync();
+                // 41.16 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4: Também não precisamos de gravar aqui nada, porque 
+
                 return RedirectToAction(nameof(Index));
-            }
-            return View(model);
-        } // end Edit(int id, Product product) [6]
+                /*
+                    10.14-- > return RedirectToAction(nameof(Index)); <=> return RedirectToAction("Index"));
+                                                       à antiga                               à moderna
+                */
+                    } // end DeleteConfirmed(int id) [8]
 
 
-        //----------------------------------------------
-        // 7) Delete(int? id)
-        //----------------------------------------------
-        // GET: Products/Delete/5
-        // public async Task<IActionResult> Delete(int? id) // 26.00 do vídeo ASP.NET_MVC_07.mp3
-        // -- public IActionResult Delete(int? id) // 26.00 do vídeo ASP.NET_MVC_07.mp3
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+                    //----------------------------------------------
+                    // 9)
+                    //----------------------------------------------
+                    // FORA: 27.35 do vídeo ASP.NET_MVC_07.mp4
+                    // private bool ProductExists(int id)
+                    // {
+                    //return _context.Products.Any(e => e.Id == id);
+                    // } // end ProductExists(int id) [9]
 
-            // var product = await _context.Products.FirstOrDefaultAsync(m => m.Id == id);
-            // -- var product = _repository.GetProduct(id.Value);
-            var product = await _productRepository.GetByIdAsync(id.Value);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return View(product);
-        } // end Delete(int? id) [7]
-
-
-        //----------------------------------------------
-        // 8) DeleteConfirmed(int id)
-        //----------------------------------------------
-        // POST: Products/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        // public async Task<IActionResult> DeleteConfirmed(int id)
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            // var product = await _context.Products.FindAsync(id);
-            // -- var product = _repository.GetProduct(id);
-            var product = await _productRepository.GetByIdAsync(id);
-
-            // _context.Products.Remove(product);   // 1.31.40 --> Remove da memória!...
-            // -- _repository.RemoveProduct(product);
-            await _productRepository.DeleteAsync(product);
-
-            // await _context.SaveChangesAsync();
-            // -- await _repository.SaveAllAsync();
-            // 41.16 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4: Também não precisamos de gravar aqui nada, porque 
-
-            return RedirectToAction(nameof(Index));
-            /*
-                10.14-- > return RedirectToAction(nameof(Index)); <=> return RedirectToAction("Index"));
-                                                   à antiga                               à moderna
-            */
-        } // end DeleteConfirmed(int id) [8]
-
-
-        //----------------------------------------------
-        // 9)
-        //----------------------------------------------
-        // FORA: 27.35 do vídeo ASP.NET_MVC_07.mp4
-        // private bool ProductExists(int id)
-        // {
-        //return _context.Products.Any(e => e.Id == id);
-        // } // end ProductExists(int id) [9]
-
-    } // end class ProductsController 
+                } // end class ProductsController 
 
 } // end namespace SuperShopDF.Web.Controllers
 

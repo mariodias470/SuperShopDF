@@ -70,6 +70,11 @@ namespace SuperShopDF.Web
             // 48.56 do vídeo ASP.NET_MVC_10:
             services.AddScoped<IUserHelper, UserHelper>();
 
+            // 09.42 do vídeo ASP.NET_MVC_12:
+            services.AddScoped<IImageHelper, ImageHelper>();
+
+            // 24.13 do vídeo ASP.NET_MVC_12:
+            services.AddScoped<IConverterHelper, ConverterHelper>();
 
             // 31.17 do vídeo ASP.NET_MVC_08:
             services.AddScoped<IProductRepository, ProductRepository>(); 
