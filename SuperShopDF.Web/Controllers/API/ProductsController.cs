@@ -2,6 +2,13 @@
 using Microsoft.CodeAnalysis;
 using SuperShopDF.Web.Data.Entities;
 
+// CONTROLADOR da API
+// CONTROLADOR da API
+// CONTROLADOR da API
+// CONTROLADOR da API
+// CONTROLADOR da API
+// CONTROLADOR da API
+
 namespace SuperShopDF.Web.Controllers.API
 {
     [Route("api/[controller]")]
@@ -36,3 +43,10 @@ namespace SuperShopDF.Web.Controllers.API
     } // end class ProductsController
 
 } // end namespace SuperShopDF.Web.Controllers.API
+
+
+
+// CONTROLADOR da API
+// CONTROLADOR da API
+// CONTROLADOR da API
+// CONTROLADOR da API

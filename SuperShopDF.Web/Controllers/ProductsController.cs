@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
@@ -48,7 +49,7 @@ namespace SuperShopDF.Web.Controllers
 
     */
 
-
+    // [Authorize]
     public class ProductsController : Controller
     {
         // -- private readonly IRepository _repository;
@@ -142,6 +143,7 @@ namespace SuperShopDF.Web.Controllers
         // 3) Create()
         //----------------------------------------------
         // GET: Products/Create
+        [Authorize]
         public IActionResult Create()
         {
             return View();
@@ -247,6 +249,7 @@ namespace SuperShopDF.Web.Controllers
         // GET: Products/Edit/5
         // public async Task<IActionResult> Edit(int? id)
         // -- public IActionResult Edit(int? id)
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
