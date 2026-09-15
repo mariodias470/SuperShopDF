@@ -5,7 +5,7 @@ namespace SuperShopDF.Web.Models
     public class LoginViewModel
     {
         [Required]
-        [EmailAddress]
+        [EmailAddress] // <=> [DataType(DataType.EmailAddress)]
         public string Username { get; set; }
         
         [Required]

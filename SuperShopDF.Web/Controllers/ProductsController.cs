@@ -82,7 +82,7 @@ namespace SuperShopDF.Web.Controllers
         // Primeiro, é sempre o mesmo procedimento, Injectar o nosso UserHelper, para depois podermos utilizá-lo.
         public ProductsController
             (
-                IProductRepository productRepository, 
+                IProductRepository productRepository,
                 IUserHelper userHelper,
                 // 10.18 do vídeo ASP.NET_MVC_12 - Injectar a imagem:
                 IImageHelper imageHelper,
@@ -201,8 +201,9 @@ namespace SuperShopDF.Web.Controllers
                 // TODO: modificar para o user que estiver logado (é o user indentity.Name) [Vide janela "Task List"].
                 // Aos 53.26 do vídeo ASP.NET_MVC_10.mp4: Antes de gravar o produto na base de dados, temos
                 // de associar o produto ao utilizador que está a criar o produto.
-                product.User = await _userHelper.GetUserByEmailAsync("rafaaaa@gmail.com");
 
+                // product.User = await _userHelper.GetUserByEmailAsync("rafaaaa@gmail.com");  <-- FORA aos 28.14 do vídeo ASP.NET_MVC_17: 
+                product.User = await _userHelper.GetUserByEmailAsync(this.User.Identity.Name);
 
                 // _context.Add(product); // muito importante: RS at vídeo ASP.NET_MVC_07, 8m 8s.
                 // não temos associação directa à base de dados.
@@ -351,7 +352,7 @@ namespace SuperShopDF.Web.Controllers
                         // path = $"~/images/products/{file}";
                         path = await _imageHelper.UploadImageAsync(model.ImageFile, "products");
 
-                        }
+                    }
 
                     // var product = ToProduct(model, path);  - FORA aos 27.37 do vídeo 12:
 
@@ -364,98 +365,102 @@ namespace SuperShopDF.Web.Controllers
 
                     // 1.02.10 do vídeo ASP.NET_MVC_10:
                     // TODO: modificar para o user que estiver logado (é o user indentity.Name) [Vide janela "Task List"]
-                    product.User = await _userHelper.GetUserByEmailAsync("rafaaaa@gmail.com");
 
-                        await _productRepository.UpdateAsync(product); // 39.02 do vídeo ASP.NET_MVC_08.mp3
+                    // product.User = await _userHelper.GetUserByEmailAsync("rafaaaa@gmail.com");  <-- FORA aos 29.01 do vídeo ASP.NET_MVC_17: 
+                    product.User = await _userHelper.GetUserByEmailAsync(this.User.Identity.Name);
 
 
-                        // await _context.SaveChangesAsync();
-                        // -- await _repository.SaveAllAsync(); 39.12 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4: Também
-                        // não precisamos de gravar aqui nada.
-                    }
-                    catch (DbUpdateConcurrencyException)
+                    await _productRepository.UpdateAsync(product); // 39.02 do vídeo ASP.NET_MVC_08.mp3
+
+
+                    // await _context.SaveChangesAsync();
+                    // -- await _repository.SaveAllAsync(); 39.12 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4: Também
+                    // não precisamos de gravar aqui nada.
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    // if (!ProductExists(product.Id)) { return NotFound(); }
+                    // -- if (!_repository.ProductExists(product.Id))
+                    if (!await _productRepository.ExistAsync(model.Id))   // 39.42 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4
                     {
-                        // if (!ProductExists(product.Id)) { return NotFound(); }
-                        // -- if (!_repository.ProductExists(product.Id))
-                        if (!await _productRepository.ExistAsync(model.Id))   // 39.42 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4
-                        {
-                            return NotFound();
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        return NotFound();
                     }
-                    return RedirectToAction(nameof(Index));
+                    else
+                    {
+                        throw;
+                    }
                 }
-                return View(model);
-            } // end Edit(int id, Product product) [6]
-
-
-            //----------------------------------------------
-            // 7) Delete(int? id)
-            //----------------------------------------------
-            // GET: Products/Delete/5
-            // public async Task<IActionResult> Delete(int? id) // 26.00 do vídeo ASP.NET_MVC_07.mp3
-            // -- public IActionResult Delete(int? id) // 26.00 do vídeo ASP.NET_MVC_07.mp3
-            public async Task<IActionResult> Delete(int? id)
-            {
-                if (id == null)
-                {
-                    return NotFound();
-                }
-
-                // var product = await _context.Products.FirstOrDefaultAsync(m => m.Id == id);
-                // -- var product = _repository.GetProduct(id.Value);
-                var product = await _productRepository.GetByIdAsync(id.Value);
-                if (product == null)
-                {
-                    return NotFound();
-                }
-
-                return View(product);
-            } // end Delete(int? id) [7]
-
-
-            //----------------------------------------------
-            // 8) DeleteConfirmed(int id)
-            //----------------------------------------------
-            // POST: Products/Delete/5
-            [HttpPost, ActionName("Delete")]
-            [ValidateAntiForgeryToken]
-            // public async Task<IActionResult> DeleteConfirmed(int id)
-            public async Task<IActionResult> DeleteConfirmed(int id)
-            {
-                // var product = await _context.Products.FindAsync(id);
-                // -- var product = _repository.GetProduct(id);
-                var product = await _productRepository.GetByIdAsync(id);
-
-                // _context.Products.Remove(product);   // 1.31.40 --> Remove da memória!...
-                // -- _repository.RemoveProduct(product);
-                await _productRepository.DeleteAsync(product);
-
-                // await _context.SaveChangesAsync();
-                // -- await _repository.SaveAllAsync();
-                // 41.16 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4: Também não precisamos de gravar aqui nada, porque 
-
                 return RedirectToAction(nameof(Index));
-                /*
-                    10.14-- > return RedirectToAction(nameof(Index)); <=> return RedirectToAction("Index"));
-                                                       à antiga                               à moderna
-                */
-                    } // end DeleteConfirmed(int id) [8]
+            }
+            return View(model);
+        } // end Edit(int id, Product product) [6]
 
 
-                    //----------------------------------------------
-                    // 9)
-                    //----------------------------------------------
-                    // FORA: 27.35 do vídeo ASP.NET_MVC_07.mp4
-                    // private bool ProductExists(int id)
-                    // {
-                    //return _context.Products.Any(e => e.Id == id);
-                    // } // end ProductExists(int id) [9]
+        //----------------------------------------------
+        // 7) Delete(int? id)
+        //----------------------------------------------
+        // GET: Products/Delete/5
+        // public async Task<IActionResult> Delete(int? id) // 26.00 do vídeo ASP.NET_MVC_07.mp3
+        // -- public IActionResult Delete(int? id) // 26.00 do vídeo ASP.NET_MVC_07.mp3
+        [Authorize]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-                } // end class ProductsController 
+            // var product = await _context.Products.FirstOrDefaultAsync(m => m.Id == id);
+            // -- var product = _repository.GetProduct(id.Value);
+            var product = await _productRepository.GetByIdAsync(id.Value);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return View(product);
+        } // end Delete(int? id) [7]
+
+
+        //----------------------------------------------
+        // 8) DeleteConfirmed(int id)
+        //----------------------------------------------
+        // POST: Products/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        // public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            // var product = await _context.Products.FindAsync(id);
+            // -- var product = _repository.GetProduct(id);
+            var product = await _productRepository.GetByIdAsync(id);
+
+            // _context.Products.Remove(product);   // 1.31.40 --> Remove da memória!...
+            // -- _repository.RemoveProduct(product);
+            await _productRepository.DeleteAsync(product);
+
+            // await _context.SaveChangesAsync();
+            // -- await _repository.SaveAllAsync();
+            // 41.16 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4: Também não precisamos de gravar aqui nada, porque 
+
+            return RedirectToAction(nameof(Index));
+            /*
+                10.14-- > return RedirectToAction(nameof(Index)); <=> return RedirectToAction("Index"));
+                                                   à antiga                               à moderna
+            */
+        } // end DeleteConfirmed(int id) [8]
+
+
+        //----------------------------------------------
+        // 9)
+        //----------------------------------------------
+        // FORA: 27.35 do vídeo ASP.NET_MVC_07.mp4
+        // private bool ProductExists(int id)
+        // {
+        //return _context.Products.Any(e => e.Id == id);
+        // } // end ProductExists(int id) [9]
+
+    } // end class ProductsController 
 
 } // end namespace SuperShopDF.Web.Controllers
 

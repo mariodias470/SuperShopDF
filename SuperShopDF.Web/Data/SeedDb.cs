@@ -7,6 +7,12 @@ using SuperShopDF.Web.Helpers;
 
 namespace SuperShopDF.Web.Data
 {
+    /*
+        1) public              SeedDb(DataContext context, IUserHelper userHelper) // linha acrecentada aos 49.34 do vídeo ASP.NET_MVC_10
+        2) public async Task   SeedAsync() // v6 - 11.48
+        3) private void        AddProduct(string name, User user)
+     */
+
     public class SeedDb
     {
         
@@ -15,6 +21,10 @@ namespace SuperShopDF.Web.Data
         // private readonly UserManager<User> _userManager; // Fora aos 49.58 do vídeo ASP.NET_MVC_10.
         private Random _random;
 
+
+        /*--------------------------------
+         | 1 - SeedDb() - construtor
+         +--------------------------------*/
         // public SeedDb(DataContext context)
         // public SeedDb(DataContext context, UserManager<User> userManager) // linha comentada aos 49.34 do vídeo ASP.NET_MVC_10
         public SeedDb(DataContext context, IUserHelper userHelper) // linha acrecentada aos 49.34 do vídeo ASP.NET_MVC_10
@@ -25,6 +35,12 @@ namespace SuperShopDF.Web.Data
             _random = new Random(); // Vídeo 6 - 11.47
         }
 
+
+
+
+        /*--------------------------------
+         | 2 - SeedAsync()
+         +--------------------------------*/
         public async Task SeedAsync() // v6 - 11.48
         {  
             await _context.Database.EnsureCreatedAsync(); // verifica se a base de dados existe 29.04 ASP.NET_MVC_10
@@ -85,6 +101,10 @@ namespace SuperShopDF.Web.Data
             }
         } // end SeedAsync()
 
+
+        /*--------------------------------
+         | 3 - AddProduct()
+         +--------------------------------*/
         private void AddProduct(string name, User user)
         {
             _context.Products.Add(new Product
@@ -95,7 +115,6 @@ namespace SuperShopDF.Web.Data
                 Stock = _random.Next(100), // vídeo 6 - 11.51
                 User = user 
             });
-
         } // end AddProduct()
 
     } // end class SeedDb
