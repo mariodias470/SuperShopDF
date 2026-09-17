@@ -1,10 +1,9 @@
 ﻿using System.Linq;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+
 using SuperShopDF.Web.Data.Entities;
 using SuperShopDF.Web.Helpers;
 using SuperShopDF.Web.Models;
@@ -17,20 +16,31 @@ namespace SuperShopDF.Web.Controllers
     //      A seguir à action vem a view
     public class AccountController : Controller
     {
-
         /*
-            private readonly IUserHelper _userHelper; // 10.28 do vídeo ASP.NET_MVC_16
-            AccountController(IUserHelper userHelper) 
+            private readonly IUserHelper              _userHelper; // 10.28 do vídeo ASP.NET_MVC_16
+            1)                                        AccountController(IUserHelper userHelper) 
 
-            public async Task<IActionResult>    Login(LoginViewModel model)
-            public async Task<IActionResult>    Logout()
-            public IActionResult                Register() 
+            2) public IActionResult                   Login()
+            3) public async Task<IActionResult>       Login(LoginViewModel model) || [HttpPost]
 
+            4) public async Task<IActionResult>       Logout()
+    
+            5) public IActionResult                   Register() || [HttpGet] // vide Views/Account/Register.cshtml
+            6) public async Task<IActionResult>       Register(RegisterNewUserViewModel model) || [HttpPost] // vide Views/Account/Register.cshtml
+            
+            7) public async Task<IActionResult>       ChangeUser()
+            8) public async Task<IActionResult>       ChangeUser()
+            9) public IActionResult                   ChangePassword()
+
+                // teste de um vídeo (COMENTAR POSTERIORMENTE)
+                // vide tb ficheiros:  ForgotPassword.cshtml
+                //                     ForgotPasswordViewModel.cs
+                10) IActionResult                      ForgotPassword() || [HttpGet]
          */
-
 
         private readonly IUserHelper _userHelper; // 10.28 do vídeo ASP.NET_MVC_16
 
+        // 1)
         public AccountController(IUserHelper userHelper)
         {
             _userHelper = userHelper;
@@ -39,7 +49,7 @@ namespace SuperShopDF.Web.Controllers
         // 29.43 do vídeo ASP.NET_MVC_16:
         // Este método limita-se a mostrar a primeira página do login.
         /*---------------------------------------------
-         | Login()
+         | 2) Login()
          +---------------------------------------------*/
         public IActionResult Login()
         {
@@ -53,7 +63,7 @@ namespace SuperShopDF.Web.Controllers
 
 
         /*---------------------------------------------
-         | Login()
+         | 3) Login()
          +---------------------------------------------*/
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
@@ -83,7 +93,7 @@ namespace SuperShopDF.Web.Controllers
 
 
         /*---------------------------------------------
-         | Logout()
+         | 4) Logout()
          +---------------------------------------------*/
         public async Task<IActionResult> Logout()
         {
@@ -94,7 +104,7 @@ namespace SuperShopDF.Web.Controllers
 
 
         /*---------------------------------------------
-         | Register()
+         | 5) Register()
          +---------------------------------------------*/
         // 8.20 do vídeo ASP.NET_MVC_17:
         [HttpGet]
@@ -105,10 +115,8 @@ namespace SuperShopDF.Web.Controllers
 
 
 
-
-
         /*---------------------------------------------
-         | Register()
+         | 6) Register()
          +---------------------------------------------*/
         // 12.41 do vídeo ASP.NET_MVC_17:
         [HttpPost]
@@ -158,11 +166,108 @@ namespace SuperShopDF.Web.Controllers
         } // end Register()
 
 
+        // 13.10 vídeo ASP.NET_MVC_18:
+        /*---------------------------------------------
+         | 7) ChangeUser()
+         +---------------------------------------------*/
+        public async Task<IActionResult> ChangeUser()
+        {
+            var user = await _userHelper.GetUserByEmailAsync(this.User.Identity.Name);
+            var model = new ChangeUserViewModel();
+            if (user != null) 
+            {
+ //             Begin delta1:
+                model.FirstName = user.FirstName;
+                model.LastName = user.LastName;
+//              End delta1:
+            }
+            return View(model);
+            // 15.55 vídeo ASP.NET_MVC_18: Aqui estamos a fazer o inverso.
+            //                             Quando esta action chamar a view passa o modelo preenchido lá para dentro.
+            //                             Para depois podermos alterá-lo.
+            // 16.17 vídeo ASP.NET_MVC_18: Agora vamos criar a view (é sempre a mesma coisa).
+        } // end ChangeUser()
+
+
+
+        // 19.37 vídeo ASP.NET_MVC_18:
+        /*---------------------------------------------
+         | 8) ChangeUser()
+         +---------------------------------------------*/
+        [HttpPost]
+        public async Task<IActionResult> ChangeUser(ChangeUserViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userHelper.GetUserByEmailAsync(this.User.Identity.Name);
+                if (user != null)
+                { // O inverso de delta1:
+                    user.FirstName = model.FirstName;
+                    user.LastName =  model.LastName;
+                    var response = await _userHelper.UpdateUserAsync(user);
+                    if (response.Succeeded)
+                    {
+                        ViewBag.UserMessage = "User updated!";
+                    }
+                    else 
+                    {
+                        ModelState.AddModelError(string.Empty, response.Errors.FirstOrDefault().Description);
+                    }
+                }
+            }
+            return View(model);
+        } // end ChangeUser()
+
+
+
+        // 26.15 vídeo ASP.NET_MVC_18:
+        /*---------------------------------------------
+         | 9) ChangePassword()
+         +---------------------------------------------*/
+        public IActionResult ChangePassword()
+        {
+            return View();
+        } // end ChangePassword()
+
+
+
+        // 30.15 vídeo ASP.NET_MVC_18:
+        /*---------------------------------------------
+         | 10) ChangePassword()
+         +---------------------------------------------*/
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (this.ModelState.IsValid)
+            {
+                var user = await _userHelper.GetUserByEmailAsync(this.User.Identity.Name);
+                if (user != null)
+                {
+                    var result = await _userHelper.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+                    if (result.Succeeded)
+                    {
+                        return this.RedirectToAction("ChangeUser");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault().Description);
+                    }
+                }
+            }
+            else 
+            {
+                this.ModelState.AddModelError(string.Empty, "User not found!...");
+            }
+            return View(model);
+        } // end ChangePassword()
+
+
+
         // teste de um vídeo (COMENTAR POSTERIORMENTE)
         // vide tb ficheiros:  ForgotPassword.cshtml
         //                     ForgotPasswordViewModel.cs
         /*------------------------------------------------
-         | ForgotPassword()
+         | 10) ForgotPassword()
          +------------------------------------------------*/
         [HttpGet]
         [AllowAnonymous]
@@ -170,7 +275,6 @@ namespace SuperShopDF.Web.Controllers
         {
             return View();
         } // end ForgotPassword()
-
 
 
 
