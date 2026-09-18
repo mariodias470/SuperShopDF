@@ -9,6 +9,13 @@ using SuperShopDF.Web.Data;
 using SuperShopDF.Web.Data.Entities;
 using SuperShopDF.Web.Helpers;
 
+        
+        /*
+            ConfigureServices()
+            Configure()
+         */
+
+
 // Aos 30.40 do vídeo ASP.NET_MVC_08, o professor apaga a interface IRepository e a classe Repository, porque vamos usar a GenericRepository.
 // Passamos a usar apenas o genérico.
 
@@ -33,7 +40,10 @@ namespace SuperShopDF.Web
 
         public IConfiguration Configuration { get; }
 
-
+        
+        /*--------------------------------
+         | ConfigureServices()
+         +--------------------------------*/
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -77,7 +87,7 @@ namespace SuperShopDF.Web
             services.AddScoped<IConverterHelper, ConverterHelper>();
 
             // 31.17 do vídeo ASP.NET_MVC_08:
-            services.AddScoped<IProductRepository, ProductRepository>(); 
+            services.AddScoped<IProductRepository, ProductRepository>();
 
             // MOCK REPOSITORY:
             // services.AddScoped<IRepository, MockRepository>(); // 72.49 do vídeo ASP.NET_MVC_07: utilização do MockRepository.
@@ -86,13 +96,24 @@ namespace SuperShopDF.Web
             // services.AddSingleton
             // services.AddScoped();
 
+            // 06.41 do vídeo ASP.NET_MVC_21:
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Account/NotAuthorized";
+                options.AccessDeniedPath = "/Account/NotAuthorized";
+            }
+            );
+            // FIM - 06.41 do vídeo ASP.NET_MVC_21:
+
             services.AddControllersWithViews();
         
         } // end ConfigureServices(()
 
 
 
-
+        /*--------------------------------
+         | Configure()
+         +--------------------------------*/
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -106,6 +127,12 @@ namespace SuperShopDF.Web
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+
+            // 22.29 ASP.NET_MVC_21. Middleware. Como é que eçe responde quando pesquisamos por uma página não encontrada.
+            app.UseStatusCodePagesWithReExecute("/error/{0}");
+
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

@@ -122,7 +122,8 @@ namespace SuperShopDF.Web.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                // FORA 15.17 do vídeo ASP.NET_MVC_21 - return NotFound();
+                return new NotFoundViewResult("ProductNotFound"); // estou a passar a view
             }
 
             // var product = await _context.Products
@@ -130,9 +131,11 @@ namespace SuperShopDF.Web.Controllers
             // -- var product = _repository.GetProduct(id.Value); 
             var product = await _productRepository.GetByIdAsync(id.Value);
 
-            if (product == null)
+            // se o id não existir, e.g.: https://localhost:44334/Products/Details/1000
+            if (product == null) 
             {
-                return NotFound();
+                // FORA 16.27 do vídeo ASP.NET_MVC_21 - return NotFound();
+                return new NotFoundViewResult("ProductNotFound"); // estou a passar a view
             }
 
             return View(product);
@@ -256,14 +259,19 @@ namespace SuperShopDF.Web.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                // FORA 20.40 do vídeo ASP.NET_MVC_21 - return NotFound();
+                return new NotFoundViewResult("ProductNotFound");
             }
 
             // var product = await _context.Products.FindAsync(id);
             // -- var product = _repository.GetProduct(id.Value);
             var product = await _productRepository.GetByIdAsync(id.Value);
 
-            if (product == null) { return NotFound(); }
+            if (product == null) 
+            {
+                // FORA 20.44 do vídeo ASP.NET_MVC_21 - return NotFound();
+                return new NotFoundViewResult("ProductNotFound");
+            }
 
 
             // Temos de enviar um ProductViewModel para a view Edit.cshtml.
@@ -408,15 +416,18 @@ namespace SuperShopDF.Web.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                // FORA aos 21.02 do vídeo ASP.NET_MVC_21 - return NotFound();
+                return new NotFoundViewResult("ProductNotFound");
             }
 
             // var product = await _context.Products.FirstOrDefaultAsync(m => m.Id == id);
             // -- var product = _repository.GetProduct(id.Value);
             var product = await _productRepository.GetByIdAsync(id.Value);
+
             if (product == null)
             {
-                return NotFound();
+                // FORA 21.05 do vídeo ASP.NET_MVC_21 - return NotFound();
+                return new NotFoundViewResult("ProductNotFound");
             }
 
             return View(product);
@@ -452,8 +463,20 @@ namespace SuperShopDF.Web.Controllers
         } // end DeleteConfirmed(int id) [8]
 
 
+
+        // 17.00 do vídeo ASP.NET_MVC_21
         //----------------------------------------------
-        // 9)
+        // 9) ProductNotFound()
+        //----------------------------------------------
+        public IActionResult ProductNotFound()
+        {
+            return View();
+        } // end ProductNotFound()
+
+
+
+        //----------------------------------------------
+        // 11)
         //----------------------------------------------
         // FORA: 27.35 do vídeo ASP.NET_MVC_07.mp4
         // private bool ProductExists(int id)
@@ -464,6 +487,11 @@ namespace SuperShopDF.Web.Controllers
     } // end class ProductsController 
 
 } // end namespace SuperShopDF.Web.Controllers
+
+
+
+
+
 
 
 

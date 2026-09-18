@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SuperShopDF.Web.Models;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace SuperShopDF.Web.Controllers
 {
@@ -33,5 +31,13 @@ namespace SuperShopDF.Web.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-    }
-}
+
+        // 25.11 ASP.NET_MVC_21:
+        [Route("error/404")]
+        public IActionResult Error404() 
+        {
+            return View();
+        } // end Error404()
+
+    } // end HomeController 
+} // end namespace SuperShopDF.Web.Controllers

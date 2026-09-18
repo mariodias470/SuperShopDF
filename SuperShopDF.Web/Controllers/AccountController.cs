@@ -279,6 +279,15 @@ namespace SuperShopDF.Web.Controllers
         } // end ForgotPassword()
 
 
+        // 04.00 vídeo ASP.NET_MVC_21:
+        /*---------------------------------------------
+         | 11) ChangePassword()
+         +---------------------------------------------*/
+        public IActionResult NotAuthorized()
+        {
+            return View();
+        } // end NotAuthorized()
+
 
     } // end class AccountController 
 } // end namespace SuperShopDF.Web.Controllers
