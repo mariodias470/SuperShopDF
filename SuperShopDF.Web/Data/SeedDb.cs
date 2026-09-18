@@ -15,7 +15,6 @@ namespace SuperShopDF.Web.Data
 
     public class SeedDb
     {
-        
         private readonly DataContext _context;
         private readonly IUserHelper _userHelper; // linha acrecentada aos 49.34 do vídeo ASP.NET_MVC_10
         // private readonly UserManager<User> _userManager; // Fora aos 49.58 do vídeo ASP.NET_MVC_10.
@@ -37,13 +36,19 @@ namespace SuperShopDF.Web.Data
 
 
 
-
         /*--------------------------------
          | 2 - SeedAsync()
          +--------------------------------*/
         public async Task SeedAsync() // v6 - 11.48
-        {  
-            await _context.Database.EnsureCreatedAsync(); // verifica se a base de dados existe 29.04 ASP.NET_MVC_10
+        {
+            // 29.04 - ASP.NET_MVC_10
+            //  Verifica se a base de dados existe. Se não existir será criada else 'nulla'
+            await _context.Database.EnsureCreatedAsync(); 
+
+            // Criação de 2 métodos que se destinam a verficar se os roles existem ou não: 03.22 - ASP.NET_MVC_19
+            // Caso não existam serão criados.
+            await _userHelper.CheckRoleAsync("Admin");
+            await _userHelper.CheckRoleAsync("Customer");
 
             // var user = await _userManager.FindByEmailAsync("rafaaaa@gmail.com"); FORA aos 50.30 do vídeo ASP.NET_MVC_10.
             var user = await _userHelper.GetUserByEmailAsync("rafaaaa@gmail.com");  // acrecentado aos 50.35 do vídeo ASP.NET_MVC_10.
@@ -87,7 +92,18 @@ namespace SuperShopDF.Web.Data
                     //return;
                     throw new InvalidOperationException("Could not create the user in seeder");
                 }
+                // 08.10 do vídeo ASP.NET_MVC_19:
+                // Associar o 'role' Admin ao utilizador.
+                await _userHelper.AddUserToRoleAsync(user, "Admin");
             }
+
+            // 10.00 - ASP.NET_MVC_19 - Verifica se o utilizador tem o 'role' especificado:
+            var isInRole = await _userHelper.IsUserInRoleAsync(user, "Admin");
+
+            if (!isInRole)
+            {
+                await _userHelper.AddUserToRoleAsync(user, "Admin");
+            } 
 
             if (!_context.Products.Any()) 
             {

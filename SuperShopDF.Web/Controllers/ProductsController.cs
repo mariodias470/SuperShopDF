@@ -143,7 +143,8 @@ namespace SuperShopDF.Web.Controllers
         // 3) Create()
         //----------------------------------------------
         // GET: Products/Create
-        [Authorize]
+        // [Authorize] - FORA aos 16.07 video ASP.NET_MVC_19
+        [Authorize(Roles = "Admin")] // [Authorize(Roles = "Admin,Customer,SuperUser")]
         public IActionResult Create()
         {
             return View();

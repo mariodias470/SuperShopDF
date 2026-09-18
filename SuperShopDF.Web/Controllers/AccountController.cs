@@ -135,6 +135,8 @@ namespace SuperShopDF.Web.Controllers
                         Email = model.Username,
                         UserName = model.Username
                     };
+                    // TODO: role customer (TPC). Vídeo 19 aos 28m 08s. Na prática faz-se como está no seed. Vide também 21m 44s do mesmo vídeo.
+
                     // Adicionar o novo user:
                     var result = await _userHelper.AddUserAsync(user, model.Password);
                     if (result != IdentityResult.Success)
