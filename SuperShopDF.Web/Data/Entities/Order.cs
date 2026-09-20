@@ -12,7 +12,7 @@ namespace SuperShopDF.Web.Data.Entities
         public DateTime  			        OrderDate 	    { get; set; }
         public DateTime 			        DeliveryDate 	{ get; set; }
         public User 				        User 		    { get; set; }
-        public IEnumerable<OrderDetail> 	Items		    { get; set; }
+        public IEnumerable<OrderDetail> 	Items		    { get; set; } b// <-- ligação de um para muitos
         public double 				        Quantity 	    => Items == null ? 0 : Items.Sum(i => i.Quantity);
         public decimal 				        Value 		    => Items == null ? 0 : Items.Sum(i => i.Value);
     */
@@ -37,7 +37,7 @@ namespace SuperShopDF.Web.Data.Entities
 
         // 18.03 do vídeo ASP.NET_MVC_22:
         // 22.17 do vídeo ASP.NET_MVC_22 (ligação de um para muitos)
-        public IEnumerable<OrderDetail> Items{ get; set; }
+        public IEnumerable<OrderDetail> Items{ get; set; } // <-- ligação de um para muitos
 
         // 19.39 do vídeo ASP.NET_MVC_22:
         [DisplayFormat(DataFormatString = "{0:N2}")]
