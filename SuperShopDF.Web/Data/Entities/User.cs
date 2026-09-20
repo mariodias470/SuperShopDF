@@ -8,5 +8,8 @@ namespace SuperShopDF.Web.Data.Entities
 
         public string LastName { get; set; }
 
+        // Aos 1.07.38 do vídeo ASP.NET_MVC_22:
+        public string FullName => $"{FirstName} {LastName}";
+
     } // end class User
 } // end namespace SuperShopDF.Web.Data.Entities

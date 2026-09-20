@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using SuperShopDF.Web.Data.Entities;
 using SuperShopDF.Web.Helpers;
 
@@ -43,7 +44,10 @@ namespace SuperShopDF.Web.Data
         {
             // 29.04 - ASP.NET_MVC_10
             //  Verifica se a base de dados existe. Se não existir será criada else 'nulla'
-            await _context.Database.EnsureCreatedAsync(); 
+
+            // 31.20 - ASP.NET_MVC_22 (Lêr a descrição do método)
+            // FORA - await _context.Database.EnsureCreatedAsync(); 
+            await _context.Database.MigrateAsync();
 
             // Criação de 2 métodos que se destinam a verficar se os roles existem ou não: 03.22 - ASP.NET_MVC_19
             // Caso não existam serão criados.

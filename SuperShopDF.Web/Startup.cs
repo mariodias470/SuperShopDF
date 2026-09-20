@@ -86,8 +86,11 @@ namespace SuperShopDF.Web
             // 24.13 do vídeo ASP.NET_MVC_12:
             services.AddScoped<IConverterHelper, ConverterHelper>();
 
-            // 31.17 do vídeo ASP.NET_MVC_08:
+            // 57.51 do vídeo ASP.NET_MVC_22:
             services.AddScoped<IProductRepository, ProductRepository>();
+
+
+            services.AddScoped<IOrderRepository, OrderRepository>();
 
             // MOCK REPOSITORY:
             // services.AddScoped<IRepository, MockRepository>(); // 72.49 do vídeo ASP.NET_MVC_07: utilização do MockRepository.

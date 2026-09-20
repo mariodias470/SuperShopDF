@@ -51,6 +51,13 @@
                     </ul class="nav navbar-nav navbar-right"> 
                         @if (this.User.Identity.IsAuthenticated)
                         {
+                            @* 1.11.19 do vídeo ASP.NET_MVC_22: *@
+                            @* begin *@
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="Index">Orders</a>
+                            </li>
+                            @* end *@
+
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="ChangeUser">@this.User.Identity.Name</a>
                             </li>
