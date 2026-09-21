@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 
@@ -26,6 +28,29 @@ namespace SuperShopDF.Web.Data.Entities
                                                            // e a dos Users
         }
 
+        // 19.34 - vídeo ASP-NET_MVC_23:
 
+        // public IEnumerable<SelectListItem> IProductRepository.GetComboProducts()
+        public IEnumerable<SelectListItem> GetComboProducts()
+        {
+            // ... 20 objectos do tipo ListItem
+            var list = _context.Products.Select(p => new SelectListItem // na prática, isto é como se fosse um foreach()
+            {
+                Text = p.Name,
+                Value = p.Id.ToString()
+            }
+            ).ToList();
+
+            list.Insert(0, new SelectListItem
+            {
+                Text = "(Escolha um produto...)",
+                Value = "0"
+            }
+            );
+
+            return list;
+        } // end GetComboProducts()
+
+        // 25.01 vídeo ASP-NET_MVC_23: Há até quem faça um helper para fazer os combo boxes.
     } // end class ProductRepository
 } // end namespace SuperShopDF.Web.Data

@@ -9,7 +9,7 @@ namespace SuperShopDF.Web.Data.Entities
         public int Id { get; set; }
 
         [Required]
-        public Product product { get; set; }
+        public Product Product { get; set; } // xpto
 
         [DisplayFormat(DataFormatString = "{0:C2}")]
         public decimal Price { get; set; }

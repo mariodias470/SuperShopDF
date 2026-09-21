@@ -20,6 +20,12 @@ namespace SuperShopDF.Web.Data
     // ouvir...
     // fim 44.24
 
+    /*
+        GetOrderAsync()
+        GetDetailsTempsAsync()
+     */
+
+
 
     // 41.06 - vídeo ASP-NET_MVC_22:
     public class OrderRepository : GenericRepository<Order>, IOrderRepository
@@ -44,15 +50,30 @@ namespace SuperShopDF.Web.Data
             {
                 return _context.Orders
                     .Include(o => o.Items)
-                    .ThenInclude(p => p.product)
+                    .ThenInclude(p => p.Product)
                     .OrderByDescending(o => o.OrderDate);
             }
             return _context.Orders
                     .Include(o => o.Items)
-                    .ThenInclude(p => p.product)
+                    .ThenInclude(p => p.Product)
                     .Where(o => o.User == user)
                     .OrderByDescending(o => o.OrderDate);
         } // end GetOrderAsync()
+
+
+        public async Task<IQueryable<OrderDetailTemp>> GetDetailsTempsAsync(string userName)
+        {
+            var user = await _userHelper.GetUserByEmailAsync(userName);
+            if (user == null)
+            {
+                return null;
+            }
+
+            return _context.OrdersDetailsTemp
+                            .Include(p => p.Product)
+                            .Where(o => o.User == user)
+                            .OrderBy(o => o.Product.Name);
+        } // end GetDetailsTempsAsync()
 
     } // end OrderRepository
 } // end namespace SuperShopDF.Web.Data

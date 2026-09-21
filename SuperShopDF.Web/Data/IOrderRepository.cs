@@ -10,7 +10,8 @@ namespace SuperShopDF.Web.Data
         // 45.03 - vídeo ASP-NET_MVC_22
         Task<IQueryable<Order>> GetOrderAsync(string userName);
 
-
+        // 01.19 - vídeo ASP-NET_MVC_23
+        Task<IQueryable<OrderDetailTemp>> GetDetailsTempsAsync(string userName);
 
     } // end IOrderRepository
 } // end namespace SuperShopDF.Web.Data
