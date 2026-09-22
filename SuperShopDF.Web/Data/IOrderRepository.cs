@@ -33,5 +33,8 @@ namespace SuperShopDF.Web.Data
         //                                                     IMPORTANTE: methods that have a body.
         public Task DeleteDetailTempAsync(int id);
 
+        // 04.49 - vídeo ASP-NET_MVC_26:
+        Task<bool> ConfirmOrderAsync(string userName);
+
     } // end IOrderRepository
 } // end namespace SuperShopDF.Web.Data

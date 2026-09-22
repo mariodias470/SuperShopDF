@@ -2,6 +2,7 @@
 using SuperShopDF.Web.Data.Entities;
 using SuperShopDF.Web.Helpers;
 using SuperShopDF.Web.Models;
+using System;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -53,13 +54,28 @@ namespace SuperShopDF.Web.Data
             {
                 return null;
             }
+
+            // Se estivermos na presença de um administrador vamos buscar isto:
             if (await _userHelper.IsUserInRoleAsync(user, "Admin"))
             {
                 return _context.Orders
+                    .Include(o => o.User) // <-- 35.22  - vídeo ASP-NET_MVC_26.
+                                          // MUITO IMPORTANTE:
+                                          // É como se fosse mais um INNER JOIN:
+                                          // Dá-me as encomendas todas e
+                                          // dá-me também os users e
+                                          // depois dá-me também os itens e
+                                          // dá-me também os produtos.
+                                          // ATTENÇÃO: ver bem a diferença entre o
+                                          // Include
+                                          // e o
+                                          // ThenInclude
                     .Include(o => o.Items)
                     .ThenInclude(p => p.Product)
                     .OrderByDescending(o => o.OrderDate);
             }
+            
+            // Se não estivermos na presença de um administrador vamos buscar isto:
             return _context.Orders
                     .Include(o => o.Items)
                     .ThenInclude(p => p.Product)
@@ -156,6 +172,51 @@ namespace SuperShopDF.Web.Data
             _context.OrdersDetailsTemp.Remove(orderDetailTemp);
             await _context.SaveChangesAsync();
         } // end DeleteDetailTempAsync()
+
+
+
+        // 04.49 - vídeo ASP-NET_MVC_26:
+        public async Task<bool> ConfirmOrderAsync(string userName)
+        {
+            var user = await _userHelper.GetUserByEmailAsync(userName);
+            
+            if (user == null) {  return false; }
+            
+            var orderTmps = await _context.OrdersDetailsTemp
+                .Include(o => o.Product)
+                .Where(o => o.User == user)
+                .ToListAsync();
+
+            if (orderTmps == null || orderTmps.Count() == 0) { return false; }
+            
+            var details = orderTmps.Select(o => new OrderDetail
+            {
+                Price = o.Price,
+                Product = o.Product,
+                Quantity = o.Quantity
+            }).ToList();
+
+            var order = new Order
+            {
+                OrderDate = DateTime.UtcNow,
+                User = user, 
+                Items = details
+            };
+
+            // CreateAsync(order); 
+            // CS4014: Because this call is not awaited, execution of the current method continues
+            //         before the call is completed.
+            //         Consider applying the await operator to the result of the call.
+            // https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/async-await-errors?f1url=%3FappId%3Droslyn%26k%3Dk(CS4014)
+
+            await CreateAsync(order);
+
+            // 13.42 - vídeo ASP-NET_MVC_26, remover o outro:
+            _context.OrdersDetailsTemp.RemoveRange(orderTmps);
+            await _context.SaveChangesAsync();
+            return true;
+
+        } // end ConfirmOrderAsync()
 
     } // end class OrderRepository 
 } // end namespace SuperShopDF.Web.Data

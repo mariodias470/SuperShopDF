@@ -14,6 +14,7 @@ namespace SuperShopDF.Web.Controllers
         DeleteItem()
         Increase()
         Decrease()
+        ConfirmOrder()
      */
 
     // 58.43 - vídeo ASP-NET_MVC_22
@@ -135,6 +136,21 @@ namespace SuperShopDF.Web.Controllers
 
             return RedirectToAction("Create"); // volta para a mesma view, a view "Create"
         } // end Decrease()
+
+
+
+        // 19.48 - vídeo ASP-NET_MVC_26:
+        public async Task<IActionResult> ConfirmOrder()
+        {
+            var response = await _orderRepository.ConfirmOrderAsync(this.User.Identity.Name);
+
+            if (response)
+            {
+                return RedirectToAction("Index");
+            }
+            
+            return RedirectToAction("Create"); // volta para a mesma view, a view "Create"
+        } // end ConfirmOrder()
 
     } // class class OrdersController 
 } // end using Microsoft.AspNetCore.Mvc;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,8 +14,10 @@ namespace SuperShopDF.Web.Data.Entities
         public DateTime 			        DeliveryDate 	{ get; set; }
         public User 				        User 		    { get; set; }
         public IEnumerable<OrderDetail> 	Items		    { get; set; } b// <-- ligação de um para muitos
+        public int                          Lines           => Items == null ? 0 :Items.Count();
         public double 				        Quantity 	    => Items == null ? 0 : Items.Sum(i => i.Quantity);
         public decimal 				        Value 		    => Items == null ? 0 : Items.Sum(i => i.Value);
+        public DateTime?                    OrderDateLocal  => this.OrderDate == null ? null : this.OrderDate.ToLocalTime();
     */
 
     public class Order : IEntity
@@ -39,12 +42,23 @@ namespace SuperShopDF.Web.Data.Entities
         // 22.17 do vídeo ASP.NET_MVC_22 (ligação de um para muitos)
         public IEnumerable<OrderDetail> Items{ get; set; } // <-- ligação de um para muitos
 
+        // 16.15 do vídeo ASP.NET_MVC_26:
+        [DisplayFormat(DataFormatString = "{0:N0}")] // sem casas decimais
+        public int Lines => Items == null ? 0 :Items.Count(); // Lines = quantidade de produtos.
+
         // 19.39 do vídeo ASP.NET_MVC_22:
         [DisplayFormat(DataFormatString = "{0:N2}")]
         public double Quantity => Items == null ? 0 : Items.Sum(i => i.Quantity);
 
         [DisplayFormat(DataFormatString = "{0:C2}")]
         public decimal Value => Items == null ? 0 : Items.Sum(i => i.Value);
+
+        // 25.25 do vídeo ASP.NET_MVC_26:
+        [Display(Name = "Order date")]
+        [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd hh:mm tt}", ApplyFormatInEditMode = false)]
+        public DateTime? OrderDateLocal => this.OrderDate == null ? null : this.OrderDate.ToLocalTime();
+
+
 
     } // end class Order
 } // end namespace SuperShopDF.Web.Data.Entities
