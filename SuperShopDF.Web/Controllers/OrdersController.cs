@@ -11,6 +11,9 @@ namespace SuperShopDF.Web.Controllers
         Index()
         Create()
         AddProduct()
+        DeleteItem()
+        Increase()
+        Decrease()
      */
 
     // 58.43 - vídeo ASP-NET_MVC_22
@@ -91,6 +94,47 @@ namespace SuperShopDF.Web.Controllers
             return View(model);
         } // end AddProduct()
 
+
+        // 03.31 - vídeo ASP-NET_MVC_25:
+        public async Task<IActionResult> DeleteItem(int? id) 
+        {
+            if (id == null)
+            { 
+                return NotFound(); 
+            }
+            await _orderRepository.DeleteDetailTempAsync(id.Value);
+
+            return RedirectToAction("Create"); // volta para a mesma view, a view "Create"
+        } // end DeleteItem()
+
+
+
+        // 06.08 - vídeo ASP-NET_MVC_25:
+        public async Task<IActionResult> Increase(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            await _orderRepository.ModifyOrderDetailTempQuantityAsync(id.Value, 1);
+
+            return RedirectToAction("Create"); // volta para a mesma view, a view "Create"
+        } // end Increase()
+
+
+
+
+        // 06.08 - vídeo ASP-NET_MVC_25:
+        public async Task<IActionResult> Decrease(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            await _orderRepository.ModifyOrderDetailTempQuantityAsync(id.Value, -1);
+
+            return RedirectToAction("Create"); // volta para a mesma view, a view "Create"
+        } // end Decrease()
 
     } // class class OrdersController 
 } // end using Microsoft.AspNetCore.Mvc;

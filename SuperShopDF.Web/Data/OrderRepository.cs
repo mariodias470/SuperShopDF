@@ -28,6 +28,7 @@ namespace SuperShopDF.Web.Data
         GetDetailsTempsAsync()
         AddItemToOrderAsync()
         ModifyOrderDetailTempQuantityAsync()
+        DeleteDetailTempAsync()
      */
 
 
@@ -81,6 +82,8 @@ namespace SuperShopDF.Web.Data
                             .OrderBy(o => o.Product.Name);
         } // end GetDetailsTempsAsync()
 
+        
+        
         // 03.29 - vídeo ASP-NET_MVC_24:
         public async Task AddItemToOrderAsync(AddItemViewModel model, string userName)
         {   // 13.00 - revisão deste método:
@@ -121,6 +124,8 @@ namespace SuperShopDF.Web.Data
             await _context.SaveChangesAsync();
         } // end AddItemToOrderAsync()
 
+        
+        
         public async Task ModifyOrderDetailTempQuantityAsync(int id, double quantity)
         {
             var orderDetailTemp = await _context.OrdersDetailsTemp.FindAsync(id);
@@ -138,6 +143,19 @@ namespace SuperShopDF.Web.Data
             }
         } // end ModifyOrderDetailTempQuantityAsync()
 
+
+
+        // 01.47 - vídeo ASP-NET_MVC_25:
+        public async Task DeleteDetailTempAsync(int id) 
+        {
+            var orderDetailTemp = await _context.OrdersDetailsTemp.FindAsync(id);
+            if (orderDetailTemp == null)
+            {
+                return;
+            }
+            _context.OrdersDetailsTemp.Remove(orderDetailTemp);
+            await _context.SaveChangesAsync();
+        } // end DeleteDetailTempAsync()
 
     } // end class OrderRepository 
 } // end namespace SuperShopDF.Web.Data
