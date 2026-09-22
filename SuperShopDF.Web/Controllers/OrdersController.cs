@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SuperShopDF.Web.Data;
 using SuperShopDF.Web.Data.Entities;
 using SuperShopDF.Web.Models;
-using System.Threading.Tasks;
+
 
 namespace SuperShopDF.Web.Controllers
 {   /*
@@ -76,6 +77,20 @@ namespace SuperShopDF.Web.Controllers
 
             return View(model);
         } // end AddProduct()
+
+
+        // 16.40 - vídeo ASP-NET_MVC_24:
+        [HttpPost]
+        public async Task<IActionResult> AddProduct(AddItemViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                await _orderRepository.AddItemToOrderAsync(model, this.User.Identity.Name);
+                return RedirectToAction("Create");
+            }
+            return View(model);
+        } // end AddProduct()
+
 
     } // class class OrdersController 
 } // end using Microsoft.AspNetCore.Mvc;
