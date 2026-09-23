@@ -9,6 +9,7 @@ using SuperShopDF.Web.Models;
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Threading.Tasks;
 
 namespace SuperShopDF.Web.Controllers
@@ -147,9 +148,11 @@ namespace SuperShopDF.Web.Controllers
         //----------------------------------------------
         // GET: Products/Create
         // [Authorize] - FORA aos 16.07 video ASP.NET_MVC_19
-        [Authorize(Roles = "Admin")] // [Authorize(Roles = "Admin,Customer,SuperUser")]
+        // FORA aos 57.05  do vídeo ASP.NET_MVC_28: [Authorize(Roles = "Admin")] e passa para o delete com o POST // [Authorize(Roles = "Admin,Customer,SuperUser")]
         public IActionResult Create()
         {
+            // 51.25 video ASP.NET_MVC_28:
+            // throw new Exception("Excepção de teste.");
             return View();
         } // end Create() [3]
 
@@ -440,26 +443,57 @@ namespace SuperShopDF.Web.Controllers
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        // aos 57.30  do vídeo ASP.NET_MVC_28 (acrecntar):
+        [Authorize(Roles = "Admin")] 
         // public async Task<IActionResult> DeleteConfirmed(int id)
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            // var product = await _context.Products.FindAsync(id);
-            // -- var product = _repository.GetProduct(id);
+            // Aos 30.40 do vídeo ASP.NET_MVC_28 comentei a função toda (vide delta1):
+
             var product = await _productRepository.GetByIdAsync(id);
+            try
+            {
+                // throw new Exception("Excepção de teste");
+                await _productRepository.DeleteAsync(product);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException != null && ex.InnerException.Message.Contains("DELETE"))
+                {
 
-            // _context.Products.Remove(product);   // 1.31.40 --> Remove da memória!...
-            // -- _repository.RemoveProduct(product);
-            await _productRepository.DeleteAsync(product);
+                    ViewBag.ErrorTitle = $"{product.Name} provavelmente está a ser usado!!";
+                    ViewBag.ErrorMessage = $"{product.Name} não pode ser apagado visto haver encomendas que o usam.</br></br>" +
+                                           $"Experimente primeiro apagar todas as encomendas que o estão a usar," +
+                                           $"e torne novamente a apagá-lo";
+                }
+                return View("Error");
+            }
 
-            // await _context.SaveChangesAsync();
-            // -- await _repository.SaveAllAsync();
-            // 41.16 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4: Também não precisamos de gravar aqui nada, porque 
+            // ------------
+            // begin delta1
+            // ------------
+                // // var product = await _context.Products.FindAsync(id);
+                // // -- var product = _repository.GetProduct(id);
+                // var product = await _productRepository.GetByIdAsync(id);
 
-            return RedirectToAction(nameof(Index));
-            /*
-                10.14-- > return RedirectToAction(nameof(Index)); <=> return RedirectToAction("Index"));
-                                                   à antiga                               à moderna
-            */
+                // // _context.Products.Remove(product);   // 1.31.40 --> Remove da memória!...
+                // // -- _repository.RemoveProduct(product);
+                // await _productRepository.DeleteAsync(product);
+
+                // // await _context.SaveChangesAsync();
+                // // -- await _repository.SaveAllAsync();
+                // // 41.16 do vídeo 2026_m07_JUL_d21_3F_[ASP.NET_MVC_08]_.mp4: Também não precisamos de gravar aqui nada, porque 
+
+                // return RedirectToAction(nameof(Index));
+                // /*
+                //     10.14-- > return RedirectToAction(nameof(Index)); <=> return RedirectToAction("Index"));
+                //                                        à antiga                               à moderna
+                // */
+            // ------------
+            // end delta1
+            // ------------
+
         } // end DeleteConfirmed(int id) [8]
 
 

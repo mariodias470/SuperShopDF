@@ -126,7 +126,9 @@ namespace SuperShopDF.Web
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                // 18.50 do vídeo ASP.NET_MVC_27: FORA COM ISTO:
+                // app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Errors/Error"); 
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -161,3 +163,62 @@ namespace SuperShopDF.Web
 
     } // end class public class Startup
 } // end namespace SuperShopDF.Web
+
+
+
+
+/*
+----------------------------------------------------------------
+Once I click on the project properties (SuperShopDF.Web) 
+where can I find the environment variable ASPNETCORE_ENVIRONMENT 
+to toggle between development mode and production mode ?
+----------------------------------------------------------------
+
+ANSWER:
+
+In a typical ASP.NET Core MVC project such as your SuperShopDF.Web, you usually won’t find ASPNETCORE_ENVIRONMENT directly in the project properties window.
+
+In Visual Studio, do this:
+
+Right-click SuperShopDF.Web → Properties.
+Select Debug on the left.
+Look for Environment variables.
+
+You should see something like:
+
+ASPNETCORE_ENVIRONMENT = Development
+
+To switch to Production, change it to:
+
+ASPNETCORE_ENVIRONMENT = Production
+
+If you don't see it there
+
+Look in your project for:
+
+Properties
+ └── launchSettings.json
+
+Open launchSettings.json. You will probably find something similar to:
+
+"environmentVariables": {
+  "ASPNETCORE_ENVIRONMENT": "Development"
+}
+
+Change it to:
+
+"environmentVariables": {
+  "ASPNETCORE_ENVIRONMENT": "Production"
+}
+
+Important: launchSettings.json is primarily for local development/debugging. When the application is actually deployed to IIS, the environment can instead be configured through IIS/server configuration.
+
+If you show me your launchSettings.json, I can point out exactly which line controls it in your SuperShopDF.Web project.
+
+
+*/
+
+
+
+
+

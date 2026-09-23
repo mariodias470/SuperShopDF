@@ -26,18 +26,24 @@ namespace SuperShopDF.Web.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
 
-        // 25.11 ASP.NET_MVC_21:
-        [Route("error/404")]
-        public IActionResult Error404() 
-        {
-            return View();
-        } // end Error404()
+        // 19.20 do vídeo ASP.NET_MVC_27:
+        // código comentado aqui neste ficheiro e copiado para o ficheiro ErrosController.cs:
+
+        /*
+                [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+                public IActionResult Error()
+                {
+                    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+                }
+
+                // 25.11 ASP.NET_MVC_21:
+                [Route("error/404")]
+                public IActionResult Error404() 
+                {
+                    return View();
+                } // end Error404()
+        */
 
     } // end HomeController 
 } // end namespace SuperShopDF.Web.Controllers
